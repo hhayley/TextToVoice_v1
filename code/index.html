@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<title>Live input record and playback</title>
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.4/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.4/addons/p5.dom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.4/addons/p5.sound.min.js"></script>
+  <!-- <script src='https://code.responsivevoice.org/responsivevoice.js'></script> -->
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  
+  <style type='text/css'>
+    ul { list-style: none; }
+    #recordingslist audio { display: block; margin-bottom: 10px; }
+  </style>
+
+</head>
+<body>
+
+  <h1>Text to Voice</h1>
+  <p style="color:#ffffff;font-size: 14pt;">Write any  sentence and pressed the word to record your voice! </p>
+  
+  <input type="text" id="inputText" placeholder="Type here..."/><button id="enterBtn" onclick="enterClick();" >&rarr;</button>
+  <!-- <p id = "textArea"></p> -->
+  <br/><br/>
+  <button onclick="playFromData();" id ="playBtn">play</button>
+  <!-- <button onclick="playLocal();" id ="playBtn">play recorded files</button> -->
+  <!-- <button onclick="resetPage();" id ="resetBtn">reset</button> -->
+  <p style="display:inline;" id = "savedTextArea"></p>
+  <br/><br/>
+  <p style="color:#cecece;font-size: 13pt;">( MousePressed &rarr; start | MouseReleased &rarr; stop )</p>
+  <div></div>
+  <br/>
+  
+
+  <!-- jquery CDN-->
+  <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+  <script src = "sketch.js"></script>
+  
+  <script>
+
+  // var words = []; 
+  var savedText; 
+  var showText; 
+  var stringArray = [];
+
+  var soundfiles = []; 
+  var savedWord; 
+
+  var words = []; 
+  var log; 
+  var jsonLength = 0; 
+  var items = []; 
+  var ping; 
+
+
+    $.getJSON('words.json', function (json) {
+      //read Json File - words.json 
+      jsonLength = json.table.length;   
+
+     items = []; 
+      for(var i = 0; i < json.table.length; i++){
+        var savedword = json.table[i].word; 
+        items.push(savedword);
+        // console.log(jsonLength+"|"+items);
+      }
+    });
+
+
+  ping = new Audio("../soundDownload/ping.wav");
+
+
+  var pword_e; 
+  var word;
+
+  $( "#inputText" ).keyup(function(e) { 
+
+    var phrase = $(this).val();
+    // console.log(phrase)
+
+    if (e.keyCode == '32') { //space
+
+      words = phrase.split(" ")
+      word = words[words.length-2]
+     
+      // if(word != words[words.length-3]){
+      var createBtn = $("<button/>").text(word).appendTo("div");
+
+        for(var i = 0; i < jsonLength; i++){
+          // console.log(items[i] + "|"+ word);
+          if(items[i] != word){
+           createBtn.addClass("ableRecord");
+          }else if(items[i] == word) {
+            createBtn.addClass("needToSave");
+          }
+          
+        // }
+        }
+      
+    
+
+    }else if( e.keyCode == '13'){ //enter
+      words = phrase.split(" ")
+     
+     
+      var word_e = words[words.length-1];
+      
+
+      if(word_e !=  pword_e){
+        // console.log(word_e +" | "+ pword_e);
+         
+          
+        // for(var i = 0; i < jsonLength; i++){
+             
+        //   if(items[i] == word_e[i]){
+        //     ///// change button color 
+           
+        //      $("<button/>").text(word_e).addClass("needToSave").appendTo("div");
+        //   }else{
+        //      $("<button/>").text(word_e).addClass("ableRecord").appendTo("div");
+        //   }
+
+        // }
+
+      }
+
+      pword_e = word_e;
+    
+      playFromData();
+
+    }
+
+  }).focus();
+
+
+  $(document).on("mousedown",".ableRecord",function(){
+
+    // startRecording();  
+    p5_soundFile = new p5.SoundFile();
+    p5_recorder.record(p5_soundFile);
+    this.style.background = "#FF0000"; // recorded file marked 
+    bg = 0;
+  })
+
+  function storage(filename,file){
+    this.filename = filename; 
+    this.file = file; 
+  } 
+
+var addfile; 
+  $(document).on("mouseup",".ableRecord",function(){
+
+    p5_recorder.stop();
+    p5_soundFile.play();
+    this.style.background = "#333333"; // recorded file marked 
+    this.style.color = "#ffffff"; // recorded file marked
+    var audio_name = $(this).text();
+    saveSound(p5_soundFile, audio_name +'.wav');
+
+    soundfiles[words.indexOf(audio_name)] = new storage(audio_name,p5_soundFile);
+
+    showSavedWord(audio_name);
+
+    bg = 20;
+
+  });
+
+
+  $(".floatingText").click(function(){
+     console.log(this);
+  })
+
+  var toPlay = [];
+  var playCounter = 0;
+  var playCounter2 = 0;
+  var stipud = 0; 
+  var temp_audio; 
+  var tempNum;
+
+  function playEnded(arg) {
+    
+    playCounter++;
+    console.log('ended' + playCounter);
+    if (playCounter < toPlay.length) {
+      toPlay[playCounter].play();
+      //delay (settimeout)... 
+    } else {
+      console.log("end of sequence");
+
+    }
+  }
+
+
+  function playEndedFromData(arg){
+    playCounter2++;
+    // console.log('ended' + playCounter2);
+    if (playCounter2 < toPlayData.length) {
+
+      // var dur = toPlayData[playCounter2].duration;  // return NaN check 
+
+      //if file is not existed, dont play  
+      //  for(var i = 0; i < jsonLength; i++){
+      //     // console.log(items[i] + "|"+ word);
+      //      // console.log(items[i]+" | "+toPlayData[playCounter2].filename);
+        
+      //     if(items[i] == toPlayData[playCounter2].filename){
+
+      //     }else if(items[i] != toPlayData[playCounter2].filename) {
+      //       console.log("notSame");
+      //       ping.play();
+      //     }
+          
+      // }
+
+        toPlayData[playCounter2].play();
+      
+     
+    } else {
+      console.log("end of sequence _ 2");
+      playCounter2 = 0;
+    }
+
+  
+}
+
+var savedAudio;
+var readTextArray = [];
+var toPlayData = []; 
+
+
+
+  function playFromData(){ 
+
+    readTextArray = [];
+    toPlayData = []; 
+
+    readText = $( "#inputText" ).val(); 
+    readTextWord = readText.split(" "); 
+ 
+    readTextArray = new Array();
+
+    for(var i =0; i < readTextWord.length; i++){
+      readTextArray.push(readTextWord[i]);
+
+    }
+
+    readTextArray.pop(); 
+    console.log(readTextArray);
+   
+
+    // console.log("readTextArray.length :" + readTextArray.length);
+
+    for(var i = 0; i < words.length+1; i++){
+      if(words[i] != undefined && words[i] != ''){
+        savedAudio = new Audio("../soundDownload/"+words[i]+".wav?ver=" + Date.now());
+        //console.log(savedAudio.duration);
+        //console.log(playCounter2);
+        savedAudio.addEventListener('ended', playEndedFromData, true);
+        toPlayData.push(savedAudio);   
+
+      }
+   
+    }
+     
+    if(words.length > playCounter2 && words.length > 0){
+
+      toPlayData[playCounter2].play(); 
+
+    }else{
+      // playCounter2 = 0; 
+    }
+     //playCounter2 = 0; 
+  }
+
+/*
+  function playFromData(){ // play saved files 
+
+    readTextArray = [];
+    toPlayData = []; 
+
+    readText = $( "#inputText" ).val(); 
+    readTextWord = readText.split(" "); 
+   
+    // console.log(readTextArray);
+    readTextArray = new Array();
+
+    for(var i =0; i < readTextWord.length; i++){
+      readTextArray.push(readTextWord[i]);
+
+    }
+    readTextArray.pop(); 
+
+    // console.log("readTextArray.length :" + readTextArray.length);
+    console.log(readTextArray);
+
+    for(var i = 0; i < readTextArray.length+1; i++){
+      if(readTextArray[i] != undefined){
+        savedAudio = new Audio("../soundDownload/"+readTextArray[i]+".wav?ver=" + Date.now());
+        console.log(playCounter2);
+        savedAudio.addEventListener('ended', playEndedFromData, true);
+        toPlayData.push(savedAudio);   
+
+      }
+   
+    }
+     
+    if(readTextArray.length > playCounter2 && readTextArray.length > 0){
+      toPlayData[playCounter2].play(); 
+    }else{
+      playCounter2 = 0; 
+    }
+     playCounter2 = 0; 
+  }
+*/
+  //local folder --> reading 
+  function playLocal(){ // play recored files 
+
+    if( soundfiles.length > 0){
+      toPlay = []; 
+      playCounter = 0;
+
+      for(var i = 0; i < soundfiles.length; i++){  
+        temp_audio = new Audio("../soundDownload/"+soundfiles[i].filename+".wav?ver=" + Date.now());
+        temp_audio.addEventListener('ended', playEnded, true);
+        toPlay.push(temp_audio);
+    }
+     toPlay[playCounter].play();
+    }
+
+    // $( "#inputText" ).val("");  // clear
+      
+  }
+
+function makeDiv(){
+    // vary size for fun
+    var divsize = (10).toFixed();
+    var color = '#'+ Math.round(0xffffff * Math.random()).toString(16);
+    $newdiv = $('<span/>').css({
+        'width':divsize+'px',
+        'height':divsize+'px',
+        'background-color': color
+    });
+
+    // make position sensitive to size and document's width
+    var posx = (Math.random() * ($(document).width() - divsize)).toFixed();
+    var posy = (Math.random() * ($(document).height()/2 - divsize)).toFixed();
+
+    $newdiv.css({
+        'position':'absolute',
+        'left':posx+'px',
+        'top':posy+'px',
+        'display':'none'
+    }).appendTo( 'body' ).fadeIn(100).delay(1000).fadeOut(500, function(){
+      $(this).remove();
+      makeDiv(); 
+    }); 
+};
+
+function resetPage(){
+  //refresh this page 
+  window.location.reload();
+}
+  
+$("<span/>").onclick = function(){
+  console.log(this);
+}
+
+var pword_b; 
+function enterClick(){ 
+
+  var phrase = $("#inputText").val();
+
+  words = phrase.split(" ");
+  var word_b = words[words.length-1]; 
+
+    // if(word_b !=  pword_b){
+      $("<button/>").text(word_b).addClass("ableRecord").appendTo("div");
+    // }
+    // pword_b = w1ord_b;
+
+}
+
+
+
+  </script>
+
+  <script src="../dist/recorder.js"></script>
+</body>
+</html>

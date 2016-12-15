@@ -1,0 +1,162 @@
+html, body {
+  overflow: hidden;
+  margin: 50px;
+  padding: 20px;
+  background-color: #0000ff;
+  font-family:  "PxPlus IBM VGA8";
+  font-size: 14pt;
+  color: #00ff00;
+}
+
+canvas{
+  position:fixed;
+  left:0px;
+  bottom:0px;
+   height:30px;
+   width:100%;
+   background:#999;
+   box-shadow: none;
+   z-index: -999;
+}
+
+textarea {
+  outline: none;
+  background-color: black;
+  resize: none;
+  color : #ff00ff;
+  font-family:  "PxPlus IBM VGA8";
+  font-size: 14pt;
+  width: 500px;
+  border-style: none;
+  border-width:0;
+}
+span{
+	color : #0000ff;
+  	font-family:  "PxPlus IBM VGA8";
+  	font-size: 14pt;
+  	
+}
+h1{
+   text-shadow: 3px 3px #000000;
+}
+
+.clicked{
+	background: red;
+}
+
+#playBtn, #saveBtn{
+  color: black;
+  background: yellow;
+
+}
+#playBtn:hover, #saveBtn:hover{
+   background: orange;
+}
+
+h1{
+  font-size: 30pt;
+}
+
+input[type="text"]:focus,
+input[type="text"].focus {
+  border-bottom: solid 2px #000000;
+  outline: none;
+}
+
+input[type="text"], textarea {
+  color : #ffffff;
+  background-color : #00008B; 
+  width: 90%;
+  /*padding: 10px;*/
+  /*border: none;*/
+  border: solid 2px #202020;
+  transition: border 0.3s;
+  font-family:  "PxPlus IBM VGA8";
+  font-size: 14pt;
+
+}
+
+#enterBtn {
+  text-decoration: none;
+  display: inline-block;
+  font-family:  "PxPlus IBM VGA8";
+  background-color : #ffffff; 
+  font-size: 14pt;
+  width: 9%;
+  border: none;
+  appearance: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+#enterBtn:hover {
+   background-color : #00ff00; 
+}
+
+#playBtn, #resetBtn {
+  text-decoration: none;
+  display: inline-block;
+  font-family:  "PxPlus IBM VGA8";
+  background-color : #ffff00; 
+  font-size: 14pt;
+  width: 100%;
+
+  appearance: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+#playBtn, #resetBtn :hover {
+  outline: none
+  background-color : #0000ff; 
+}
+
+
+#playBtn, #resetBtn :focus {
+  outline: none
+}
+
+.floatingText{
+  -webkit-animation: random 5s infinite;
+  animation: random 5s infinite;
+  color : #000000;
+}
+
+.floatingText:hover{
+  color : white;
+  background-color: red;
+  z-index: -888;
+}
+
+@keyframes  random {
+    15% { background-color: orange; } 
+    30% { background-color: yellow; } 
+    45% { background-color: green; } 
+    60% { background-color: purple; }
+    75% { background-color: white; }  
+}
+.ableRecord{
+ text-decoration: none;
+  /*border: none;*/
+  display: inline-sblock;
+  font-family:  "PxPlus IBM VGA8";
+  background-color : #ff0000; 
+  font-size: 14pt;
+  /*line-height: 1.4;*/
+
+  appearance: none;
+  box-shadow: none;
+  border-radius: 0;
+  margin-left: 6px;
+}
+
+.ableRecord:hover{
+  background-color :  #FF8C00; 
+}
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color:  #a9a9a9 ;
+}
+
+.needToSave{
+  background-color: #00FF00; 
+}
